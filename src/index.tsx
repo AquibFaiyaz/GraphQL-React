@@ -1,13 +1,12 @@
-import ApolloClient from "apollo-boost";
-
 import React from "react";
-import { ApolloProvider } from "react-apollo";
+import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 import { Listings } from "./sections";
 
 const client = new ApolloClient({
   uri: "http://localhost:9000/api",
+  cache: new InMemoryCache(),
 });
 
 ReactDOM.render(

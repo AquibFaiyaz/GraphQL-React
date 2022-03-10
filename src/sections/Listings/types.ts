@@ -19,5 +19,5 @@ export interface deleteListingData {
 }
 
 export interface deleteListingVariables {
-  id: string;
+  deleteListingId: string;
 }

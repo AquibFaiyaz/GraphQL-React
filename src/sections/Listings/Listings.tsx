@@ -1,6 +1,6 @@
 import { gql } from "apollo-boost";
 import React, { FunctionComponent } from "react";
-import { useQuery, useMutation } from "react-apollo";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   ListingData,
   deleteListingData,
@@ -49,7 +49,7 @@ export const Listings: FunctionComponent<Props> = ({ title }) => {
   >(DELETE_LISTING);
 
   const deleteListingHandle = async (id: string) => {
-    await deleteListing({ variables: { id } }).then((res) => {
+    await deleteListing({ variables: { deleteListingId: id } }).then((res) => {
       refetch();
     });
   };
