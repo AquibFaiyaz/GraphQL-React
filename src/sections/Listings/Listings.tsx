@@ -1,38 +1,38 @@
-import React, { FunctionComponent, useState } from "react";
-import { server } from "../../lib/api";
+import { gql } from "apollo-boost";
+import React, { FunctionComponent } from "react";
+import { useQuery, useMutation } from "react-apollo";
 import {
   ListingData,
   deleteListingData,
-  deleteListingId,
-  Listing,
+  deleteListingVariables,
 } from "./types";
 
-const LISTINGS = `
-query Listings {
-  listings {
-    id
-    title
-    image
-    address
-    rating
-    price
-    numOfBaths
-    numOfBeds
-    numOfGuests
+const LISTINGS = gql`
+  query Listings {
+    listings {
+      id
+      title
+      image
+      address
+      rating
+      price
+      numOfBaths
+      numOfBeds
+      numOfGuests
+    }
   }
-}
 `;
 
-const DELETE_LISTING = `
-mutation DeleteListing($deleteListingId: ID!) {
-  deleteListing(id: $deleteListingId) {
-    title
-    image
-    id
-    rating
-    numOfBaths
+const DELETE_LISTING = gql`
+  mutation DeleteListing($deleteListingId: ID!) {
+    deleteListing(id: $deleteListingId) {
+      title
+      image
+      id
+      rating
+      numOfBaths
+    }
   }
-}
 `;
 
 interface Props {
@@ -40,37 +40,36 @@ interface Props {
 }
 
 export const Listings: FunctionComponent<Props> = ({ title }) => {
-  const [listing, setListing] = useState<Listing[] | null>(null);
-  const fetchListing = async () => {
-    await server.fetch<ListingData>({ query: LISTINGS }).then(({ data }) => {
-      setListing(data.listings);
+  //custom hook
+  const { data, refetch, loading, error } = useQuery<ListingData>(LISTINGS);
+
+  const [deleteListing, state] = useMutation<
+    deleteListingData,
+    deleteListingVariables
+  >(DELETE_LISTING);
+
+  const deleteListingHandle = async (id: string) => {
+    await deleteListing({ variables: { id } }).then((res) => {
+      refetch();
     });
   };
 
-  const deleteListing = async (id: string) => {
-    await server
-      .fetch<deleteListingData, deleteListingId>({
-        query: DELETE_LISTING,
-        variables: {
-          deleteListingId: id,
-        },
-      })
-      .then(({ data }) => {
-        fetchListing();
-      });
-  };
+  const listing = data ? data.listings : null;
+  if (loading) {
+    return <h1>Loading</h1>;
+  }
   return (
     <div>
       <h2>{title}</h2>
-      <button onClick={fetchListing}>Query Listing</button>
+
       <ul>
-        {listing?.map((item) => {
+        {listing?.map((listing) => {
           return (
             <>
-              <li key={item.id}>{item.title}</li>
+              <li key={listing.id}>{listing.title}</li>
               <button
                 onClick={() => {
-                  deleteListing(item.id);
+                  deleteListingHandle(listing.id);
                 }}
               >
                 Delete
